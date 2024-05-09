@@ -1,9 +1,7 @@
 export default class toDos {
     constructor() {
         this.projects = [];
-        this.projects.push('Home');
-        this.projects.push('Today');
-        this.projects.push('This Week');
+        this.tasks = [];
     }
 
     addProject(project) {
@@ -18,4 +16,15 @@ export default class toDos {
         return this.projects.find(project);
     }
     
+    addTask(task) {
+        this.tasks.push(task);
+    }
+
+    deleteTask(task) {
+        this.tasks.splice(this.tasks.findIndex(task));
+    }
+
+    getTask(task) {
+        return this.tasks.find(task);
+    }
 }
