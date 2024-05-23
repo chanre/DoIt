@@ -36,6 +36,10 @@ if (localStorage.getItem('toDoList') === null) {
 }
     
 const homeBtn = document.querySelector('#home');
+const newTaskBtn = document.querySelector('#newTask');
+const taskModal = document.querySelector('#taskModal');
+const closeModal = document.querySelector('#closeModal');
+const taskForm = document.querySelector('#task');
 
 homeBtn.addEventListener('click', (e) => {
     const {target} = e;
@@ -47,6 +51,23 @@ homeBtn.addEventListener('click', (e) => {
             displayTask(task);
         });
     }
+});
+
+newTaskBtn.addEventListener('click', (e) => {
+    const {target} = e;
+    taskModal.style.visibility = 'visible';
+    console.log('modal');
+});
+
+taskModal.addEventListener('click', (e) => {
+    if (e.target.id == 'taskModal' && taskModal.style.visibility == 'visible') {
+        taskModal.style.visibility = 'hidden';
+    }
+});
+
+closeModal.addEventListener('click', (e) => {
+    taskForm.reset();
+    taskModal.style.visibility = 'hidden';
 });
 
 function displayTask(task) {
