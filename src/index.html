@@ -18,7 +18,7 @@
             <button class="default" id="week"> <i class="fa-solid fa-calendar-week"></i><span>This Week</span></button>
         </div>
         <div id="projectSection">
-            <ul id="projects">
+            <ul id="projectList">
                 Projects
             </ul>
             <button id="newProject"><i class="fa-solid fa-plus"></i>Add New Project</button>
@@ -47,6 +47,10 @@
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
+                </select>
+                <label for="projects">Projects</label>
+                <select name="projects" id="projects">
+                    <option value="None">None</option>
                 </select>
                 <button id="addTask" type="button">Add Task</button>
                 <div id="invalid">Please fill in all required inputs.</div>

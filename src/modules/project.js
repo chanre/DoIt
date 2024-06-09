@@ -21,7 +21,8 @@ export default class project {
     }
 
     addTask(newTask) {
-        if (!this.tasks.find(newTask.getName()) (this.tasks.push(newTask)));
+        if (!this.tasks.find(task => task.name === newTask.name)) 
+            this.tasks.push(newTask);
     }
 
     getTasks() {

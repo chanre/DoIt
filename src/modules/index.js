@@ -54,9 +54,14 @@ if (localStorage.getItem('toDoList') === null) {
     Object.setPrototypeOf(toDoList, ToDos.prototype);
     titleDiv.textContent = 'Home';
     toDoList.projects.forEach((project) => {
-        project.tasks.forEach((task) => displayTask(task));
+        Object.setPrototypeOf(project, Project.prototype);
+        project.tasks.forEach((task) => {
+            Object.setPrototypeOf(task, Task.prototype);
+            displayTask(task);
+        });
     });
     toDoList.tasks.forEach((task) => {
+        Object.setPrototypeOf(task, Task.prototype);
         displayTask(task);
     });
 }
@@ -98,6 +103,7 @@ function displayTask(task) {
         formDate.value = task.dueDate;
         priority.value = task.priority;
         modal.style.visibility = 'visible';
+        taskForm.style.visibility = 'visible';
     });
     
     taskTrash.addEventListener('click', () => {
@@ -137,11 +143,35 @@ function clearProjects(projectList) {
     projectList.textContent = "Projects";
 }
 
+function refreshProjectsSelect() {
+    const projectToAddTo = document.getElementById('projects');
+
+    while(projectToAddTo.firstChild) {
+        projectToAddTo.removeChild(projectToAddTo.firstChild);
+    }
+
+    const none = document.createElement('option');
+    none.value = 'None';
+    none.text = 'None';
+    projectToAddTo.appendChild(none);
+
+    for (let i = 0; i < toDoList.projects.length; i++) {
+        let option = document.createElement('option');
+        option.value = toDoList.projects[i].name;
+        option.text = toDoList.projects[i].name;
+        projectToAddTo.appendChild(option);
+    }
+}
+
 function displayProjects() {
+    const projectList = document.getElementById('projectList');
+
+    refreshProjectsSelect();
+    clearProjects(projectList);
+
     toDoList.projects.forEach((project) => {
         const projectListItem = document.createElement('li');
         const deleteProject = document.createElement('span');
-        const projectList = document.getElementById('projects');
 
         deleteProject.textContent = '\u00d7';
         projectListItem.textContent = project.name;
@@ -149,7 +179,6 @@ function displayProjects() {
         deleteProject.addEventListener('click', () => {
             toDoList.deleteProject(project);
             localStorage.setItem('toDoList', JSON.stringify(toDoList));
-            clearProjects(projectList);
             displayProjects();
         });
         projectList.appendChild(projectListItem);
@@ -174,6 +203,7 @@ newTaskBtn.addEventListener('click', (e) => {
     let form = [formTitle, formDetails, formDate, priority];
     taskForm.reset();
     modalTitle.textContent = 'New Task';
+    formDetails.value = '';
     for (let x of form) {
         x.classList.remove('form-invalid');
         x.classList.remove('form-valid');
@@ -203,6 +233,7 @@ for (let element of closeModal) {
 addTask.addEventListener('click', (e) => {
     let form = [formTitle, formDetails, formDate, priority];
     const newTask = new Task;
+    const projectOptions = document.getElementById('projects');
 
     if (formTitle.value && formDetails.value && formDate.value && priority.value) {
         invalidInput.style.visibility = 'hidden';
@@ -211,7 +242,12 @@ addTask.addEventListener('click', (e) => {
         newTask.dueDate = format(formDate.value, 'yyyy-MM-dd');
         newTask.priority = priority.value;
 
-        toDoList.addTask(newTask);
+        if (projectOptions.value != 'none') {
+            const index = toDoList.projects.findIndex(project => project.name === projectOptions.value);
+            toDoList.projects[index].addTask(newTask);
+        } else {
+            toDoList.addGenericTask(newTask);
+        }
         
         localStorage.setItem('toDoList', JSON.stringify(toDoList));
         modal.style.visibility = 'hidden';

@@ -1,3 +1,5 @@
+import Project from './project';
+import Task from './task';
 export default class toDos {
     constructor() {
         this.projects = [];
@@ -13,10 +15,10 @@ export default class toDos {
     }
 
     getProject(project) {
-        return this.projects.find(project);
+        return this.projects.find(object => object.name === project);
     }
     
-    addTask(task) {
+    addGenericTask(task) {
         this.tasks.push(task);
     }
 
