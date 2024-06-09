@@ -9,7 +9,7 @@ export default class toDos {
     }
 
     deleteProject(project) {
-        this.projects.splice(this.projects.findIndex(project));
+        this.projects.splice(this.projects.indexOf(project), 1);
     }
 
     getProject(project) {

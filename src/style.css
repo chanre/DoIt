@@ -11,7 +11,120 @@ body {
 nav {
     grid-row: 2 / 3;
     grid-column: 1 / 2;
-    background-color: rgba(224, 216, 216, 0.466);
+    background-color: rgb(226, 226, 226);
+    display: flex;
+    flex-direction: column;
+    padding-top: 2rem;
+    align-items: center;
+}
+
+#btnSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+#btnSection > button {
+    background-color: rgb(250, 248, 248);
+    border: none;
+    width: 80%;
+    font-size: 1rem;
+    display: flex;
+    justify-content: start;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    margin-top: 1rem;
+    border-radius: 3px;
+}   
+
+.fa-inbox {
+    color: dodgerblue;
+}
+
+.fa-calendar-day {
+    color: firebrick;
+}
+
+.fa-calendar-week {
+    color: seagreen;
+}
+
+#newTask {
+    background-color: rgb(238, 233, 233);
+    width: 80%;
+    font-size: 1.5rem;
+    border:1px solid black;
+    border-radius: 3px;
+    padding: 0.5rem;
+}
+
+i {
+    margin-right: 0.5rem;
+}
+
+#btnSection > button:hover {
+    outline: 1px solid rgba(0,212,255,1);
+}   
+
+#newTask:hover {
+    border: 1px solid rgba(0,212,255,1);
+    background-color: rgb(250, 245, 245);
+    transition: 0.2s;
+}
+
+#projectSection {
+    width: 100%;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 1rem 0 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+ul {
+    list-style: none;
+}
+
+li {
+    margin-left: 5%;
+    font-weight: normal;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    width: 75%;
+}
+
+li::before {
+    font: var(--fa-font-solid);
+    margin-right: 0.5rem;
+    content: "\f03a";
+}
+
+li:hover {
+    background-color: rgb(204, 196, 196);
+    transition: 0.2s;
+}
+
+li > span {
+    float:right;
+}
+
+li > span:hover {
+    cursor: pointer;
+}
+
+#newProject {
+    width: fit-content;
+    margin-left: 17.5%;
+    border:none;
+    background-color: rgb(226, 226, 226);
+    padding:0.75rem 1.5rem 0.75rem 0.75rem;
+    font-size: 1rem;
+}
+
+#newProject:hover {
+    background-color: rgb(204, 196, 196);
+    transition: 0.2s;
 }
 
 header {
@@ -71,7 +184,7 @@ header {
     max-width: 750px;
 }
 
-#taskModal {
+#modal {
     grid-row: 1 / 9;
     grid-column: 1 / 7;
     display: flex;
@@ -79,6 +192,7 @@ header {
     justify-content: center;
     background-color: rgba(0,0,0,0.4);
     visibility: hidden;
+    z-index: 1;
 }
 
 form {
@@ -100,7 +214,7 @@ form {
     align-items: center;
 }
 
-#closeModal {
+.closeModal {
     cursor: pointer;
 }
 
@@ -111,7 +225,7 @@ form {
 
 .modalContainer {
     padding: 0 1.5rem 0.5rem 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
 label {
@@ -142,7 +256,7 @@ input, textarea {
     display:inline-block;
 }
 
-#addTask {
+#addTask, #addProject {
     padding: 10px;
     margin-top: 0.5rem;
     float: right;
@@ -153,7 +267,7 @@ input, textarea {
     font-size: 1rem;
 }
 
-#addTask:hover, .fa-regular:hover, .fa-solid:hover {
+#addTask:hover, #addProject:hover, .fa-regular:hover, .fa-solid:hover {
     scale:calc(0.97);
     cursor: pointer;
 }
@@ -164,5 +278,18 @@ input, textarea {
 
 .form-valid {
     border: 2px solid #22a542;
+}
+
+#project {
+    position: absolute;
+    z-index: 2;
+    visibility: hidden;
+    height: 175px;
+}
+
+#task {
+    position: absolute;
+    z-index: 1;
+    visibility: hidden;
 }
 

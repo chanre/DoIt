@@ -7,9 +7,10 @@ import '../style.css';
 // Initialize variables
 const homeBtn = document.querySelector('#home');
 const newTaskBtn = document.querySelector('#newTask');
-const taskModal = document.querySelector('#taskModal');
-const closeModal = document.querySelector('#closeModal');
+const modal = document.querySelector('#modal');
+const closeModal = document.getElementsByClassName('closeModal');
 const taskForm = document.querySelector('#task');
+const projectForm = document.querySelector('#project');
 const addTask = document.querySelector('#addTask');
 const formTitle = document.getElementById('title');
 const formDetails = document.getElementById('details');
@@ -17,6 +18,10 @@ const formDate = document.getElementById('date');
 const priority = document.getElementById('priority');
 const invalidInput = document.getElementById('invalid');
 const titleDiv = document.getElementById('titleDiv')
+const modalTitle = document.getElementById('modalTitle');
+const newProject = document.getElementById('newProject')
+const addProject = document.getElementById('addProject');
+const projectTitle = document.getElementById('projectTitle');
 
 // Initialize todo list with example or from local storage
 let toDoList = new ToDos();
@@ -87,14 +92,15 @@ function displayTask(task) {
             x.classList.remove('form-invalid');
             x.classList.remove('form-valid');
         }
+        modalTitle.textContent = 'Edit Task';
         formTitle.value = task.name;
         formDetails.textContent = task.details;
         formDate.value = task.dueDate;
         priority.value = task.priority;
-        taskModal.style.visibility = 'visible';
+        modal.style.visibility = 'visible';
     });
     
-    taskTrash.addEventListener('click', (e) => {
+    taskTrash.addEventListener('click', () => {
         const projects = toDoList.projects;
         const loneTasks = toDoList.tasks;
 
@@ -117,13 +123,37 @@ function displayTask(task) {
             displayTask(task);
         });
     });
-
-    console.log(`'task: ${task.name}' dueDate: ${(task.dueDate)}`)
 }
 
 function clearTasks() {
     const tasksDiv = document.getElementById('tasksDiv');
     tasksDiv.textContent = '';
+}
+
+function clearProjects(projectList) {
+    while(projectList.firstChild) {
+        projectList.removeChild(projectList.firstChild);
+    }
+    projectList.textContent = "Projects";
+}
+
+function displayProjects() {
+    toDoList.projects.forEach((project) => {
+        const projectListItem = document.createElement('li');
+        const deleteProject = document.createElement('span');
+        const projectList = document.getElementById('projects');
+
+        deleteProject.textContent = '\u00d7';
+        projectListItem.textContent = project.name;
+        projectListItem.appendChild(deleteProject);
+        deleteProject.addEventListener('click', () => {
+            toDoList.deleteProject(project);
+            localStorage.setItem('toDoList', JSON.stringify(toDoList));
+            clearProjects(projectList);
+            displayProjects();
+        });
+        projectList.appendChild(projectListItem);
+    });
 }
 
 homeBtn.addEventListener('click', (e) => {
@@ -143,24 +173,32 @@ homeBtn.addEventListener('click', (e) => {
 newTaskBtn.addEventListener('click', (e) => {
     let form = [formTitle, formDetails, formDate, priority];
     taskForm.reset();
+    modalTitle.textContent = 'New Task';
     for (let x of form) {
         x.classList.remove('form-invalid');
         x.classList.remove('form-valid');
     }
-    taskModal.style.visibility = 'visible';
+    modal.style.visibility = 'visible';
+    taskForm.style.visibility = 'visible';
 });
 
-taskModal.addEventListener('click', (e) => {
-    if (e.target.id == 'taskModal' && taskModal.style.visibility == 'visible') {
-        taskModal.style.visibility = 'hidden';
+modal.addEventListener('click', (e) => {
+    if (e.target.id == 'modal' && modal.style.visibility == 'visible') {
+        modal.style.visibility = 'hidden';
+        projectForm.style.visibility = 'hidden';
+        taskForm.style.visibility = 'hidden';
         invalidInput.style.visibility = 'hidden';
     }
 });
 
-closeModal.addEventListener('click', (e) => {
-    taskModal.style.visibility = 'hidden';
-    invalidInput.style.visibility = 'hidden';
-});
+for (let element of closeModal) {
+    element.addEventListener('click', () => {
+        taskForm.style.visibility = 'hidden';
+        projectForm.style.visibility = 'hidden';
+        modal.style.visibility = 'hidden';
+        invalidInput.style.visibility = 'hidden';
+    });
+}
 
 addTask.addEventListener('click', (e) => {
     let form = [formTitle, formDetails, formDate, priority];
@@ -176,7 +214,8 @@ addTask.addEventListener('click', (e) => {
         toDoList.addTask(newTask);
         
         localStorage.setItem('toDoList', JSON.stringify(toDoList));
-        taskModal.style.visibility = 'hidden';
+        modal.style.visibility = 'hidden';
+        taskForm.style.visibility = 'hidden';
         invalidInput.style.visibility = 'hidden';
         clearTasks();
         toDoList.projects.forEach((project) => {
@@ -198,3 +237,23 @@ addTask.addEventListener('click', (e) => {
     }
     
 });
+
+newProject.addEventListener('click', (e) => {
+    modal.style.visibility = 'visible';
+    projectForm.style.visibility = 'visible';
+    modalTitle.textContent = 'New Project';
+});
+
+addProject.addEventListener('click', () => {
+    const newProject = new Project;
+    
+    newProject.name = projectTitle.value;
+    toDoList.addProject(newProject);
+    localStorage.setItem('toDoList', JSON.stringify(toDoList));
+    modal.style.visibility = 'hidden';
+    projectForm.style.visibility = 'hidden';
+
+    displayProjects();
+});
+
+displayProjects();
