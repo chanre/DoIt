@@ -32,7 +32,7 @@
     <div id="modal">
         <form action="" id="task">
             <header class="modalContainer" id="modalHeader">
-                <h4 id="modalTitle">New Task</h4>
+                <h4 class="modalTitle">New Task</h4>
                 <span class="closeModal">&times;</span>
             </header>
             <div class="modalContainer">
@@ -58,13 +58,35 @@
         </form>
         <form action="" id="project">
             <header class="modalContainer" id="modalHeader">
-                <h4 id="modalTitle">New Project</h4>
+                <h4 class="modalTitle">New Project</h4>
                 <span class="closeModal">&times;</span>
             </header>
             <div class="modalContainer">
                 <label for="projectTitle">Title</label>
                 <input type="text" name="projectTitle" id="projectTitle">
                 <button id="addProject">Add Project</button>
+            </div>
+        </form>
+        <form action="" id="edit">
+            <header class="modalContainer" id="modalHeader">
+                <h4 class="modalTitle">Edit Task</h4>
+                <span class="closeModal">&times;</span>
+            </header>
+            <div class="modalContainer">
+                <label for="title">Title</label>
+                <input type="text" name="editTitle" id="editTitle" value="" required>
+                <label for="editDetails">Details</label>
+                <textarea name="editDetails" id="editDetails" cols="50" rows="10" value=""></textarea>
+                <label for="editDate">Date</label>
+                <input type="date" name="editDate" id="editDate" required>
+                <label for="editPriority">Priority</label>
+                <select name="editPriority" id="editPriority">
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+                <button id="editTask" type="button">Edit Task</button>
+                <div id="invalid">Please fill in all required inputs.</div>
             </div>
         </form>
     </div>

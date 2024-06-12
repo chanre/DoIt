@@ -93,6 +93,7 @@ li {
     padding: 0.5rem;
     width: 75%;
     text-overflow: ellipsis;
+    overflow:hidden;
 }
 
 li::before {
@@ -177,8 +178,9 @@ header {
 
 .task > p {
     margin: 0;
-    min-width: 250px;
-    max-width: 750px;
+    width:250px;
+    text-overflow: ellipsis;
+    overflow:hidden;
 }
 
 #modal {
@@ -249,11 +251,11 @@ input, textarea {
     height: 5rem;
 }
 
-#projects {
+#projects, #edit select {
     display:inline-block;
 }
 
-#addTask, #addProject {
+#addTask, #addProject, #editTask {
     padding: 10px;
     margin-top: 0.5rem;
     float: right;
@@ -264,7 +266,7 @@ input, textarea {
     font-size: 1rem;
 }
 
-#addTask:hover, #addProject:hover, .fa-regular:hover, .fa-solid:hover {
+#addTask:hover, #addProject:hover, .fa-regular:hover, .fa-solid:hover, #editTask:hover{
     scale:calc(0.97);
     cursor: pointer;
 }
@@ -290,3 +292,13 @@ input, textarea {
     visibility: hidden;
 }
 
+#edit {
+    position: absolute;
+    z-index: 3;
+    visibility: hidden;
+}
+
+.active {
+    transition: 0.2s;
+    filter: brightness(95%);
+}

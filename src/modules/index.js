@@ -1,27 +1,35 @@
 import Project from './project';
 import Task from './task';
 import ToDos from './todo';
-import {format, parse} from 'date-fns';
+import {format, differenceInDays, parseISO} from 'date-fns';
 import '../style.css';
 
 // Initialize variables
 const homeBtn = document.querySelector('#home');
+const todayBtn = document.getElementById('today');
+const weekBtn = document.getElementById('week');
 const newTaskBtn = document.querySelector('#newTask');
 const modal = document.querySelector('#modal');
 const closeModal = document.getElementsByClassName('closeModal');
 const taskForm = document.querySelector('#task');
 const projectForm = document.querySelector('#project');
+const editForm = document.querySelector('#edit');
 const addTask = document.querySelector('#addTask');
+const editTask = document.querySelector('#editTask');
 const formTitle = document.getElementById('title');
 const formDetails = document.getElementById('details');
 const formDate = document.getElementById('date');
 const priority = document.getElementById('priority');
+const editTitle = document.getElementById('editTitle');
+const editDetails = document.getElementById('editDetails');
+const editDate = document.getElementById('editDate');
+const editPriority = document.getElementById('editPriority');
 const invalidInput = document.getElementById('invalid');
 const titleDiv = document.getElementById('titleDiv')
-const modalTitle = document.getElementById('modalTitle');
 const newProject = document.getElementById('newProject')
 const addProject = document.getElementById('addProject');
 const projectTitle = document.getElementById('projectTitle');
+const sortByDate = (a, b) => { return (a.dueDate < b.dueDate) ? -1 : ((a.dueDate > b.dueDate) ? 1 : 0)};
 
 // Initialize todo list with example or from local storage
 let toDoList = new ToDos();
@@ -78,7 +86,7 @@ function displayTask(task) {
     newTask.classList.add('task');
     checkbox.classList.add('fa-regular', 'fa-square');
     taskName.textContent = task.name;
-    taskDate.textContent = format(parse(task.dueDate, 'yyyy-MM-dd', new Date()), 'MMM dd, yyyy');
+    taskDate.textContent = format(task.dueDate, 'PPP');
     taskEdit.classList.add('fa-regular', 'fa-pen-to-square');
     taskTrash.classList.add('fa-solid', 'fa-trash');
 
@@ -90,32 +98,59 @@ function displayTask(task) {
 
     tasksDiv.append(newTask);
 
-    taskEdit.addEventListener('click', (e) => {
-        let form = [formTitle, formDetails, formDate, priority];
-        taskForm.reset();
+    taskEdit.addEventListener('click', () => {
+        let form = [editTitle, editDetails, editDate, editPriority];
+        editForm.reset();
         for (let x of form) {
             x.classList.remove('form-invalid');
             x.classList.remove('form-valid');
         }
-        modalTitle.textContent = 'Edit Task';
-        formTitle.value = task.name;
-        formDetails.textContent = task.details;
-        formDate.value = task.dueDate;
-        priority.value = task.priority;
+        const oldTaskName = task.name;
+        editTitle.value = task.name;
+        editDetails.textContent = task.details;
+        editDate.value = task.dueDate;
+        editPriority.value = task.priority;
         modal.style.visibility = 'visible';
-        taskForm.style.visibility = 'visible';
+        editForm.style.visibility = 'visible';
+
+        editTask.addEventListener('click', () => {
+            let form = [editTitle, editDetails, editDate, editPriority];
+            if (editTitle.value && editDetails.value && editDate.value && editPriority.value) {
+                if (titleDiv.textContent === 'Home') {
+                    const index = toDoList.tasks.findIndex(item => item.name === oldTaskName);
+                    toDoList.tasks[index].name = editTitle.value;
+                    toDoList.tasks[index].details = editDetails.value;
+                    toDoList.tasks[index].dueDate = editDate.value;
+                    toDoList.tasks[index].priority = editPriority.value;
+        
+                    saveAndClear();
+                } else {
+
+                    return;
+                }
+            } else {
+                for (let x of form) {
+                    if (!x.value) {
+                        invalidInput.style.visibility = 'visible';
+                        x.classList.add('form-invalid');
+                    } else {
+                        x.classList.add('form-valid');
+                    }
+                }
+            }
+        });
     });
     
     taskTrash.addEventListener('click', () => {
         const projects = toDoList.projects;
         const loneTasks = toDoList.tasks;
-
+        
         if (loneTasks.includes(task)) {
             loneTasks.splice(loneTasks.indexOf(task), 1);
         } else {
             projects.forEach((project) => {
-                if (project.includes(task)) {
-                    project.splice(project.indexOf(task), 1);
+                if (project.tasks.includes(task)) {
+                    project.tasks.splice(project.tasks.indexOf(task), 1);
                 }
             });
         }
@@ -172,7 +207,7 @@ function displayProjects() {
     toDoList.projects.forEach((project) => {
         const projectListItem = document.createElement('li');
         const deleteProject = document.createElement('span');
-
+        
         deleteProject.textContent = '\u00d7';
         projectListItem.textContent = project.name;
         projectListItem.appendChild(deleteProject);
@@ -181,28 +216,138 @@ function displayProjects() {
             localStorage.setItem('toDoList', JSON.stringify(toDoList));
             displayProjects();
         });
+        projectListItem.addEventListener('click', () => {
+            titleDiv.textContent = project.name;
+            clearTasks();
+            homeBtn.classList.remove('active');
+            todayBtn.classList.remove('active');
+            weekBtn.classList.remove('active');
+            project.tasks.forEach((task) => {
+                displayTask(task);
+            });
+        });
         projectList.appendChild(projectListItem);
+    });
+}
+
+function saveAndClear(currentProject) {
+    localStorage.setItem('toDoList', JSON.stringify(toDoList));
+    modal.style.visibility = 'hidden';
+    taskForm.style.visibility = 'hidden';
+    projectForm.style.visibility = 'hidden';
+    editForm.style.visibility = 'hidden';
+    invalidInput.style.visibility = 'hidden';
+    clearTasks();
+
+    switch(currentProject) {
+        case 'Home':
+            toDoList.projects.forEach((project) => {
+                project.tasks.forEach((task) => displayTask(task));
+            });
+            toDoList.tasks.forEach((task) => {
+                displayTask(task);
+            })
+            break;
+        case 'Today':
+            displayToday();
+            break;
+        case 'This Week':
+            displayThisWeek;
+            break;
+        default:
+            const index = toDoList.projects.findIndex(project => project.name === currentProject);
+            toDoList.projects[index].sort(sortByDate);
+            toDoList.projects[index].tasks.forEach((task) => {
+                displayTask(task);
+            });
+    }
+}
+
+function displayToday() {
+    toDoList.projects.forEach((project) => {
+        project.tasks.forEach((task) => {
+            project.tasks.sort(sortByDate);
+            if (Math.abs(differenceInDays(task.dueDate, new Date())) === 0) {
+                displayTask(task);
+            }
+        });
+    });
+    toDoList.tasks.forEach((task) => {
+        toDoList.tasks.sort(sortByDate);
+        if (Math.abs(differenceInDays(task.dueDate, new Date())) === 0) {
+            displayTask(task);
+        }
+    });
+}
+
+function displayThisWeek() {
+    toDoList.projects.forEach((project) => {
+        project.tasks.forEach((task) => {
+            project.tasks.sort(sortByDate);
+            if (Math.abs(differenceInDays(task.dueDate, new Date())) <= 7) {
+                displayTask(task);
+            }
+        });
+    });
+    toDoList.tasks.forEach((task) => {
+        toDoList.tasks.sort(sortByDate);
+        if (Math.abs(differenceInDays(task.dueDate, new Date())) <= 7) {
+            displayTask(task);
+        }
     });
 }
 
 homeBtn.addEventListener('click', (e) => {
     const {target} = e;
-    clearTasks();
     titleDiv.textContent = 'Home';
     if (!target.classList.contains('active')) {
+        clearTasks();
+        homeBtn.classList.add('active');
+        todayBtn.classList.remove('active');
+        weekBtn.classList.remove('active');
+
         toDoList.projects.forEach((project) => {
-            project.tasks.forEach((task) => displayTask(task));
+            project.tasks.sort(sortByDate);
+            project.tasks.forEach((task) => {
+                displayTask(task)
+            });
         });
+
+        toDoList.tasks.sort(sortByDate);
         toDoList.tasks.forEach((task) => {
             displayTask(task);
         });
+
+    } 
+});
+
+todayBtn.addEventListener('click', (e) => {
+    const {target} = e;
+    titleDiv.textContent = 'Today';
+    if (!target.classList.contains('active')) {
+        clearTasks();
+        todayBtn.classList.add('active');
+        weekBtn.classList.remove('active');
+        homeBtn.classList.remove('active');
+        displayToday();
+    }
+});
+
+weekBtn.addEventListener('click', (e) => {
+    const {target} = e;
+    titleDiv.textContent = 'This Week';
+    if (!target.classList.contains('active')) {
+        clearTasks();
+        weekBtn.classList.add('active');
+        homeBtn.classList.remove('active');
+        todayBtn.classList.remove('active');
+        displayThisWeek();
     }
 });
 
 newTaskBtn.addEventListener('click', (e) => {
     let form = [formTitle, formDetails, formDate, priority];
     taskForm.reset();
-    modalTitle.textContent = 'New Task';
     formDetails.value = '';
     for (let x of form) {
         x.classList.remove('form-invalid');
@@ -217,6 +362,7 @@ modal.addEventListener('click', (e) => {
         modal.style.visibility = 'hidden';
         projectForm.style.visibility = 'hidden';
         taskForm.style.visibility = 'hidden';
+        editForm.style.visibility = 'hidden';
         invalidInput.style.visibility = 'hidden';
     }
 });
@@ -225,6 +371,7 @@ for (let element of closeModal) {
     element.addEventListener('click', () => {
         taskForm.style.visibility = 'hidden';
         projectForm.style.visibility = 'hidden';
+        editForm.style.visibility = 'hidden';
         modal.style.visibility = 'hidden';
         invalidInput.style.visibility = 'hidden';
     });
@@ -239,27 +386,19 @@ addTask.addEventListener('click', (e) => {
         invalidInput.style.visibility = 'hidden';
         newTask.name = formTitle.value;
         newTask.details = formDetails.value;
-        newTask.dueDate = format(formDate.value, 'yyyy-MM-dd');
+        newTask.dueDate = parseISO(formDate.value);
         newTask.priority = priority.value;
+        const currentProject = titleDiv.textContent;
 
-        if (projectOptions.value != 'none') {
+        if (projectOptions.value != 'None') {
             const index = toDoList.projects.findIndex(project => project.name === projectOptions.value);
             toDoList.projects[index].addTask(newTask);
         } else {
             toDoList.addGenericTask(newTask);
         }
         
-        localStorage.setItem('toDoList', JSON.stringify(toDoList));
-        modal.style.visibility = 'hidden';
-        taskForm.style.visibility = 'hidden';
-        invalidInput.style.visibility = 'hidden';
-        clearTasks();
-        toDoList.projects.forEach((project) => {
-            project.tasks.forEach((task) => displayTask(task));
-        });
-        toDoList.tasks.forEach((task) => {
-            displayTask(task);
-        })
+        console.log(currentProject);
+        saveAndClear(currentProject);
 
     } else {
         for (let x of form) {
@@ -277,7 +416,6 @@ addTask.addEventListener('click', (e) => {
 newProject.addEventListener('click', (e) => {
     modal.style.visibility = 'visible';
     projectForm.style.visibility = 'visible';
-    modalTitle.textContent = 'New Project';
 });
 
 addProject.addEventListener('click', () => {
