@@ -48,7 +48,7 @@ if (localStorage.getItem('toDoList') === null) {
             ]
         }
     )
-    toDoList.addTask(
+    toDoList.addGenericTask(
         {
             name: 'Example Task #2',
             dueDate: format(new Date(), 'yyyy-MM-dd'),
@@ -56,6 +56,19 @@ if (localStorage.getItem('toDoList') === null) {
             priority: 'High',
         }
     )
+    Object.setPrototypeOf(toDoList, ToDos.prototype);
+    titleDiv.textContent = 'Home';
+    toDoList.projects.forEach((project) => {
+        Object.setPrototypeOf(project, Project.prototype);
+        project.tasks.forEach((task) => {
+            Object.setPrototypeOf(task, Task.prototype);
+            displayTask(task);
+        });
+    });
+    toDoList.tasks.forEach((task) => {
+        Object.setPrototypeOf(task, Task.prototype);
+        displayTask(task);
+    });
 } else {
     // Retrieve todo list and set prototype to get methods back, parsing only sets it as plain object
     toDoList = JSON.parse(localStorage.getItem('toDoList'));
