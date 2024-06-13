@@ -302,3 +302,23 @@ input, textarea {
     transition: 0.2s;
     filter: brightness(95%);
 }
+
+.complete {
+    position: relative;
+    background-color: #f7f7f7;
+    transition: 0.3s;
+}
+
+.complete::before {
+    content: "";
+    position: absolute;
+    top: 45%;
+    left: 0;
+    border-top: 1px solid rgb(158, 150, 150);
+    width: 95%;
+    margin-left: 5%;
+}
+
+.fa-square-check {
+    color: green;
+}

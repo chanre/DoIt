@@ -82,6 +82,20 @@ function displayTask(task) {
     const taskDate = document.createElement('p');
     const taskEdit = document.createElement('i');
     const taskTrash = document.createElement('i');
+    function strikethrough(current) {
+        if(!current.classList.contains('complete')) {
+            task.complete = true;
+            newTask.classList.toggle('complete');
+            checkbox.classList.remove('fa-square', 'fa-regular');
+            checkbox.classList.add('fa-square-check', 'fa-solid');  
+        } else { 
+            task.complete = false;
+            newTask.classList.toggle('complete');
+            checkbox.classList.add('fa-square', 'fa-regular');
+            checkbox.classList.remove('fa-square-check', 'fa-solid'); 
+        }   
+        localStorage.setItem('toDoList', JSON.stringify(toDoList));
+    }
 
     newTask.classList.add('task');
     checkbox.classList.add('fa-regular', 'fa-square');
@@ -97,6 +111,25 @@ function displayTask(task) {
     newTask.appendChild(taskTrash);
 
     tasksDiv.append(newTask);
+
+    if (task.complete) { 
+        newTask.classList.add('complete');
+        checkbox.classList.remove('fa-square', 'fa-regular');
+        checkbox.classList.add('fa-square-check', 'fa-solid');  
+    } else {
+        newTask.classList.remove('complete');
+        checkbox.classList.add('fa-square', 'fa-regular');
+        checkbox.classList.remove('fa-square-check', 'fa-solid'); 
+    }
+
+    newTask.addEventListener('click', (e) => {
+        strikethrough(e.target); 
+    });
+
+    checkbox.addEventListener('click', (e) => {
+        strikethrough(newTask);
+        e.stopPropagation();
+    });
 
     taskEdit.addEventListener('click', () => {
         let form = [editTitle, editDetails, editDate, editPriority];
@@ -242,8 +275,10 @@ function saveAndClear(currentProject) {
     switch(currentProject) {
         case 'Home':
             toDoList.projects.forEach((project) => {
+                project.tasks.sort(sortByDate);
                 project.tasks.forEach((task) => displayTask(task));
             });
+            toDoList.tasks.sort(sortByDate);
             toDoList.tasks.forEach((task) => {
                 displayTask(task);
             })
@@ -397,7 +432,6 @@ addTask.addEventListener('click', (e) => {
             toDoList.addGenericTask(newTask);
         }
         
-        console.log(currentProject);
         saveAndClear(currentProject);
 
     } else {
